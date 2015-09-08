@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_event"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#9C27B0"
+
+    android:orientation="vertical">
+
+
+    <TextView
+        android:paddingTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textView"
+        android:textColor="@android:color/white"
+        android:gravity="center_horizontal"
+        android:text="This is Events Fragment"
+
+       />
+
+
+</LinearLayout>
