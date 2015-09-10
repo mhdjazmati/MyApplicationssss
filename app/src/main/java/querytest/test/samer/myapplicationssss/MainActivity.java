@@ -32,15 +32,13 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
-        mToolbar.setBackgroundResource(R.drawable.pic1);
+        //mToolbar.setBackgroundResource(R.drawable.toolbar);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
         // populate the navigation drawer
-
-
 
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("TEST_NAME", MODE_PRIVATE);
@@ -62,9 +60,6 @@ public class MainActivity extends ActionBarActivity
             }
         });
     }
-
-
-
 
 
     @Override
