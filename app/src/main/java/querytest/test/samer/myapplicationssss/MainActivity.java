@@ -32,7 +32,7 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
-
+        mToolbar.setBackgroundResource(R.drawable.pic1);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
