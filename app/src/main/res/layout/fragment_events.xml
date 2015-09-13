@@ -2,10 +2,9 @@
     android:id="@+id/fragment_event"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#9C27B0"
+    android:background="#E91E63"
 
     android:orientation="vertical">
-
 
     <TextView
         android:paddingTop="20dp"
@@ -16,8 +15,27 @@
         android:textColor="@android:color/white"
         android:gravity="center_horizontal"
         android:text="This is Events Fragment"
-
        />
+
+    <EditText
+        android:visibility="gone"
+        android:textColor="@android:color/white"
+        android:text="3"
+        android:id="@+id/edtTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:textColor="@android:color/white"
+        android:text="apply"
+        android:id="@+id/btn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <ListView
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/listView"
+        />
 
 
 </LinearLayout>
