@@ -17,7 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by SAMER on 29-Jul-15.
@@ -49,15 +53,15 @@ public class EventsFragment extends Fragment {
 
     EditText itemsCountEditTxt;
     ListView list;
-    int rowsCount;
-    ArrayList ar;
+    //int rowsCount;
+    ArrayList<String> ar;
     public int editTextsCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        rowsCount =4;
+        //rowsCount = 4;
         editTextsCount = 1;
 
         ar = new ArrayList<>(5);
@@ -73,7 +77,7 @@ public class EventsFragment extends Fragment {
 
         editTextsCount = Integer.parseInt(itemsCountEditTxt.getText().toString());
 
-        final MyAdapter adapter = new MyAdapter(getActivity(), ar);
+        final MyAdapter adapter = new MyAdapter(getActivity(), 3);
         list.setAdapter(adapter);
     }
 
@@ -90,6 +94,7 @@ public class EventsFragment extends Fragment {
 
 
         ViewHolder(View view) {
+            titleTextView = (TextView) view.findViewById(R.id.title);
 
          /*   base_content = (LinearLayout) findViewById(R.id.base_content);
             image = (ImageView) view.findViewById(R.id.imgViewIcon);
@@ -125,9 +130,9 @@ public class EventsFragment extends Fragment {
                 TV.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
-                TV.setText(ar.get(i)+" : ");
+                TV.setText(ar.get(i) + " : ");
                 TV.setTextAppearance(getActivity(), android.R.style.TextAppearance_Small);
-                EditText edt =new EditText(getActivity());
+                EditText edt = new EditText(getActivity());
                 edt.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -155,10 +160,10 @@ public class EventsFragment extends Fragment {
 
     class MyAdapter extends ArrayAdapter<String> {
         Context context;
-        ArrayList rowsCount;
+        int rowsCount;
 
 
-        MyAdapter(Context c, ArrayList rowsCount) {
+        MyAdapter(Context c, int rowsCount) {
             super(c, R.layout.list_item, R.id.title);
             this.context = c;
             this.rowsCount = rowsCount;
@@ -168,7 +173,7 @@ public class EventsFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return rowsCount.size();
+            return rowsCount;
         }
 
         @Override
@@ -187,12 +192,31 @@ public class EventsFragment extends Fragment {
             {
                 holder = (ViewHolder) row.getTag();
             }
+            // GregorianCalendar gc = new GregorianCalendar();
+            // gc.add(Calendar.DATE, 1);
 
             //holder.art.setText("ffff"+position);
             // holder.linearLayout
+            Calendar calendar = Calendar.getInstance();
+            Date today = calendar.getTime();
 
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            Date tomorrow = calendar.getTime();
 
-            return row;
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            String todayAsString = dateFormat.format(today);
+            String tomorrowAsString = dateFormat.format(tomorrow);
+
+            //System.out.println(todayAsString);
+            //System.out.println(tomorrowAsString);
+            //String datestring = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new java.util.Date(System.currentTimeMillis()));
+            //String datestring1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(gc);
+            if (position == 0)
+                holder.titleTextView.setText(todayAsString);
+            if (position == 1)
+                holder.titleTextView.setText(tomorrowAsString);
+                return row;
         }
     }
 /*
