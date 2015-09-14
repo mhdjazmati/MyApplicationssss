@@ -25,6 +25,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
     <Button
+        android:visibility="gone"
         android:textColor="@android:color/white"
         android:text="apply"
         android:id="@+id/btn"

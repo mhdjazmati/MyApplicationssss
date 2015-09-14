@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,7 @@ public class EventsFragment extends Fragment {
                 applyBtn_Clicked();
             }
         });
+        applyBtn_Clicked();
 
         return view;
     }
@@ -91,6 +93,7 @@ public class EventsFragment extends Fragment {
         TextView albumTextView;
         TextView descriptionTextView;
         CheckBox checkBox;
+        Button btnn;
 
 
         ViewHolder(View view) {
@@ -103,7 +106,8 @@ public class EventsFragment extends Fragment {
             albumTextView = (TextView) view.findViewById(R.id.txtAlbum);
             descriptionTextView = (TextView) view.findViewById(R.id.txtDescrip);
             checkBox = (CheckBox) view.findViewById(R.id.checkbox);
-*/
+*/            btnn = (Button) view.findViewById(R.id.checkbox);
+
             linearLayout = (LinearLayout) view.findViewById(R.id.base_content);
             //art = (TextView) view.findViewById(R.id.txtArtist);
 
@@ -205,17 +209,26 @@ public class EventsFragment extends Fragment {
 
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-            String todayAsString = dateFormat.format(today);
             String tomorrowAsString = dateFormat.format(tomorrow);
+            String todayAsString = dateFormat.format(today);
 
             //System.out.println(todayAsString);
             //System.out.println(tomorrowAsString);
             //String datestring = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new java.util.Date(System.currentTimeMillis()));
             //String datestring1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(gc);
             if (position == 0)
-                holder.titleTextView.setText(todayAsString);
-            if (position == 1)
                 holder.titleTextView.setText(tomorrowAsString);
+            if (position == 1)
+                holder.titleTextView.setText(todayAsString);
+
+            holder.btnn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), position+"Dfg",Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
                 return row;
         }
     }

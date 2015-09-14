@@ -87,75 +87,17 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/lin2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/img2"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:src="@drawable/options"
-                         />
-
-                    <TextView
-                        android:id="@+id/txtAlbum"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="salah : "
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        />
-                    <EditText
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-
-                        android:text="111"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/lin3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/img3"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:src="@drawable/options"
-                         />
-
-                    <TextView
-                        android:id="@+id/txtDescrip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="zekr : "
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        />
-                    <EditText
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-
-                        android:text="32"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
 
         <Button
+
             android:id="@+id/checkbox"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@color/accent_material_dark"
             android:text="Send" />
 
 
