@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MyApplicationssss.iml" filepath="$PROJECT_DIR$/MyApplicationssss.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androidprocessbuttonmaster/androidprocessbuttonmaster.iml" filepath="$PROJECT_DIR$/androidprocessbuttonmaster/androidprocessbuttonmaster.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

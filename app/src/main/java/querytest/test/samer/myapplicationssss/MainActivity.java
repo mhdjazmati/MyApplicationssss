@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity
         SharedPreferences pref = getApplicationContext().getSharedPreferences("TEST_NAME", MODE_PRIVATE);
         String coverImagePath=  pref.getString(MySettingsActivity.PREF_KEY_COVER_PIC,null);
         if(coverImagePath==null) {
-            mNavigationDrawerFragment.setUserData("Mohammad Djazmati", "mhdjazmati@gmail.com", BitmapFactory.decodeResource(getResources(), R.drawable.avatar));
+            mNavigationDrawerFragment.setUserData("Mohammad Djazmati", "mhdjazmati@gmail.com", BitmapFactory.decodeResource(getResources(), R.drawable.pic7));
         }
         else // there's a saved pic
         {
