@@ -10,14 +10,14 @@ import android.widget.TextView;
 import java.util.List;
 
 
-public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
+class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
 
     private List<NavigationItem> mData;
     private NavigationDrawerCallbacks mNavigationDrawerCallbacks;
     private View mSelectedView;
     private int mSelectedPosition;
 
-    public NavigationDrawerAdapter(List<NavigationItem> data) {
+    NavigationDrawerAdapter(List<NavigationItem> data) {
         mData = data;
     }
 
@@ -25,13 +25,14 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         return mNavigationDrawerCallbacks;
     }
 
-    public void setNavigationDrawerCallbacks(NavigationDrawerCallbacks navigationDrawerCallbacks) {
+    void setNavigationDrawerCallbacks(NavigationDrawerCallbacks navigationDrawerCallbacks) {
         mNavigationDrawerCallbacks = navigationDrawerCallbacks;
     }
 
     @Override
     public NavigationDrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.drawer_row, viewGroup, false);
+
         final ViewHolder viewHolder = new ViewHolder(v);
         viewHolder.itemView.setClickable(true);
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -46,8 +47,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                                                        if (mNavigationDrawerCallbacks != null)
                                                            mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(viewHolder.getPosition());
                                                    }
-                                               }
-        );
+                                               });
         viewHolder.itemView.setBackgroundResource(R.drawable.row_selector);
         return viewHolder;
     }
@@ -67,7 +67,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     }
 
 
-    public void selectPosition(int position) {
+    void selectPosition(int position) {
         mSelectedPosition = position;
         notifyItemChanged(position);
     }
@@ -77,12 +77,13 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         return mData != null ? mData.size() : 0;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.item_name);
+
         }
     }
 }

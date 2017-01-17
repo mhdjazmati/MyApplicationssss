@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -15,20 +16,28 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -59,7 +68,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
     private ActionBarDrawerToggle mActionBarDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-    private RecyclerView mDrawerList;
+    public static RecyclerView mDrawerList;
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 0;
@@ -89,14 +98,127 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mDrawerList.setLayoutManager(layoutManager);
-        mDrawerList.setHasFixedSize(true);
+        mDrawerList.setHasFixedSize(false);
 
         final List<NavigationItem> navigationItems = getMenu();
         NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(navigationItems);
         adapter.setNavigationDrawerCallbacks(this);
         mDrawerList.setAdapter(adapter);
+        if(!MainActivity.RELOAD)
         selectItem(mCurrentSelectedPosition);
+        Animation animation = AnimationUtils.loadAnimation(mDrawerList.getContext(), R.anim.up_from_bottom);
+        mDrawerList.startAnimation(animation);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            }
+        }, 1000);
+
+
         return view;
+    }
+    private void presentShowcaseSequence() {
+
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(1000); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), Log_in.SHOWCASE_ID);
+
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView itemView, int position) {
+                Toast.makeText(itemView.getContext(), "Item #" + position, Toast.LENGTH_SHORT).show();
+            }
+        });
+        sequence.setConfig(config);
+        //sequence.addSequenceItem(mButtonOne, "This is button one", "GOT IT");
+        View childAt = mDrawerList.getChildAt(2);
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(getActivity())
+                        .setTarget(childAt)
+                        .setDismissText("GOT IT")
+                        .setTitleText(R.string.welcomecase)
+                        .setDismissOnTargetTouch(true)
+                        .setTargetTouchable(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .setContentText(R.string.linimage)
+                        .build()
+        );
+/*
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(_nameText)
+                        .setTitleText(R.string.signuptitle)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string._nametext)
+                        .withRectangleShape()
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(_passwordText1)
+                        .setTitleText(R.string.signuptitle)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string._passwordText1)
+                        .withRectangleShape(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(_passwordText2)
+                        .setTitleText(R.string.signuptitle)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string._passwordText2)
+                        .withRectangleShape()
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(_signupButton)
+                        .setTitleText(R.string.signuptitle)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string._signupButton)
+                        .withRectangleShape(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(user_name)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string.user_name)
+                        .withRectangleShape(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(pword)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string.pword)
+                        .withRectangleShape(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(btnSignIn)
+                        .setDismissText(R.string.got_it)
+                        .setContentText(R.string.btnSignIn)
+                        .withRectangleShape(true)
+                        .setDismissTextColor(Color.GREEN)
+                        .build()
+        );
+*/
+        sequence.start();
+
     }
 
     public boolean isDrawerOpen() {
@@ -118,10 +240,15 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
 
     public List<NavigationItem> getMenu() {
         List<NavigationItem> items = new ArrayList<NavigationItem>();
-        items.add(new NavigationItem("Events", getResources().getDrawable(R.mipmap.fr_event)));
-        items.add(new NavigationItem("Drivers", getResources().getDrawable(R.mipmap.fr_driver)));
-        items.add(new NavigationItem("Trucks", getResources().getDrawable(R.mipmap.fr_truck)));
-        items.add(new NavigationItem("Performance", getResources().getDrawable(R.mipmap.fr_performance)));
+        items.add(new NavigationItem("معرض الصور", getResources().getDrawable(R.mipmap.fr_gallary)));
+        if (Log_in.isAdmin) {
+            items.add(new NavigationItem("مستخدمون", getResources().getDrawable(R.mipmap.fr_driver)));
+        }
+        items.add(new NavigationItem("دروس", getResources().getDrawable(R.mipmap.fr_event)));
+        items.add(new NavigationItem("الرسائل", getResources().getDrawable(R.mipmap.ic_envelope)));
+        items.add(new NavigationItem("البرنامج", getResources().getDrawable(R.mipmap.fr_truck)));
+        items.add(new NavigationItem("إعدادات", getResources().getDrawable(R.mipmap.fr_settings)));
+
         return items;
     }
 
@@ -157,10 +284,12 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
                             .getDefaultSharedPreferences(getActivity());
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
+      //////          presentShowcaseSequence();
+
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+
             }
         };
-
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
         if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
@@ -182,7 +311,6 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         mCurrentSelectedPosition = position;
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
-
         }
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);

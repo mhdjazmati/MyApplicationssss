@@ -1,10 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_event"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#E91E63"
+              xmlns:fab="http://schemas.android.com/apk/res-auto"
+              android:id="@+id/fragment_event"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#9C27B0"
 
-    android:orientation="vertical">
+              android:orientation="vertical"
+    >
 
     <TextView
         android:paddingTop="20dp"
@@ -14,29 +16,33 @@
         android:id="@+id/textView"
         android:textColor="@android:color/white"
         android:gravity="center_horizontal"
-        android:text="This is Events Fragment"
+        android:text="البرنامج"
        />
 
-    <EditText
-        android:visibility="gone"
-        android:textColor="@android:color/white"
-        android:text="3"
-        android:id="@+id/edtTxt"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:visibility="gone"
-        android:textColor="@android:color/white"
-        android:text="apply"
-        android:id="@+id/btn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+<FrameLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
     <ListView
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:id="@+id/listView"
+        android:layout_weight="1"
+        android:headerDividersEnabled="false"
+        android:stackFromBottom="true"/>
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/view_chart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@mipmap/ic_chart"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="15dp"
+        fab:fab_size="normal"
+        fab:fab_colorNormal="@color/myPrimaryColor"
+        fab:fab_colorPressed="@color/myPrimaryDarkColor"
         />
 
+    </FrameLayout>
 
 </LinearLayout>

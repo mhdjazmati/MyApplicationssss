@@ -9,6 +9,6 @@
         android:background="?android:attr/selectableItemBackground"
         android:drawablePadding="16dp"
         android:textSize="14sp"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:textColor="@color/myTextPrimaryColor"/>
 </LinearLayout>

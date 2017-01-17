@@ -1,37 +1,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragment_driver"
+                xmlns:fab="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:id="@+id/fragment_driver"
+                android:background="#2196F3"
+
     >
-
-    <LinearLayout
-
-        android:layout_width="wrap_content"
+    <TextView
+        android:paddingTop="20dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textView"
+        android:textColor="@android:color/white"
         android:gravity="center_horizontal"
-
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true">
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/icon_driver"
+        android:text="مستخدمون"
         />
 
-       <TextView
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:textAppearance="?android:attr/textAppearanceLarge"
-           android:text="Drivers"
-           android:layout_gravity="center_vertical"
-           />
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/listViewuser"
+        android:layout_below="@+id/textView"/>
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/material_design_android_floating_action_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="11dp"
+        android:layout_marginLeft="11dp"
+        android:layout_marginRight="11dp"
+        fab:menu_icon="@drawable/ic_menu"
+        fab:fab_colorNormal="@color/myPrimaryColor"
+        fab:fab_colorPressed="@color/myPrimaryDarkColor"
+        fab:menu_fab_label="اختر احد الخيارات"
+>
 
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/material_design_floating_action_menu_item1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/abc_ic_menu_paste_mtrl_am_alpha"
+            fab:fab_label="عرض طلبات التسجيل"
+            fab:fab_size="mini" />
 
-    </LinearLayout>
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/material_design_floating_action_menu_item2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_edit"
+            fab:fab_label="إضافة مستخدم"
+            fab:fab_size="mini" />
 
-
+    </com.github.clans.fab.FloatingActionMenu>
+    </FrameLayout>
 
 </RelativeLayout>

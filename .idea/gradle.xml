@@ -5,15 +5,23 @@
       <GradleProjectSettings>
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="C:\Program Files\Android\Android Studio1\gradle\gradle-2.4" />
-        <option name="gradleJvm" value="1.8" />
+        <option name="gradleHome" value="D:\Android\Android Studio\gradle\gradle-2.14.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/AVLoadingIndicatorView" />
+            <option value="$PROJECT_DIR$/AndroidSlidingUpPanel" />
             <option value="$PROJECT_DIR$/androidprocessbuttonmaster" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/fab" />
+            <option value="$PROJECT_DIR$/floatlabelededittext" />
+            <option value="$PROJECT_DIR$/hellocharts-library" />
+            <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/selectableRoundedImageViewLib" />
+            <option value="$PROJECT_DIR$/showcasematerial" />
           </set>
         </option>
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

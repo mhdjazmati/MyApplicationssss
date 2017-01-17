@@ -1,1 +1,2 @@
-include ':app', ':androidprocessbuttonmaster'
+include ':app', ':androidprocessbuttonmaster', ':library', ':hellocharts-library', ':fab', ':floatlabelededittext', ':AndroidSlidingUpPanel', ':AVLoadingIndicatorView', ':showcasematerial'
+include ':selectableRoundedImageViewLib'

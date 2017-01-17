@@ -2,9 +2,17 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AVLoadingIndicatorView/AVLoadingIndicatorView.iml" filepath="$PROJECT_DIR$/AVLoadingIndicatorView/AVLoadingIndicatorView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidSlidingUpPanel/AndroidSlidingUpPanel.iml" filepath="$PROJECT_DIR$/AndroidSlidingUpPanel/AndroidSlidingUpPanel.iml" />
       <module fileurl="file://$PROJECT_DIR$/MyApplicationssss.iml" filepath="$PROJECT_DIR$/MyApplicationssss.iml" />
       <module fileurl="file://$PROJECT_DIR$/androidprocessbuttonmaster/androidprocessbuttonmaster.iml" filepath="$PROJECT_DIR$/androidprocessbuttonmaster/androidprocessbuttonmaster.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fab/fab.iml" filepath="$PROJECT_DIR$/fab/fab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/floatlabelededittext/floatlabelededittext.iml" filepath="$PROJECT_DIR$/floatlabelededittext/floatlabelededittext.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hellocharts-library/hellocharts-library.iml" filepath="$PROJECT_DIR$/hellocharts-library/hellocharts-library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/selectableRoundedImageViewLib/selectableRoundedImageViewLib.iml" filepath="$PROJECT_DIR$/selectableRoundedImageViewLib/selectableRoundedImageViewLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/showcasematerial/showcasematerial.iml" filepath="$PROJECT_DIR$/showcasematerial/showcasematerial.iml" />
     </modules>
   </component>
 </project>

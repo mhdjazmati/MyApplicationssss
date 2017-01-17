@@ -1,9 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_performance"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#2196F3"
-    android:orientation="vertical">
+              xmlns:fab="http://schemas.android.com/apk/res-auto"
+              xmlns:app="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:id="@+id/fragment_performance"
+              android:background="@android:color/holo_orange_dark"
+
+    >
 
 
     <TextView
@@ -14,8 +18,31 @@
         android:id="@+id/textView"
         android:textColor="@android:color/white"
         android:gravity="center_horizontal"
-        android:text="This is Performance Fragment"
- />
+        android:text="الرسائل"
+        />
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ListView
 
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/listViewMessage"
+
+        />
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab_add_m"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/fab_add"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="15dp"
+        app:fab_size="large"
+        fab:fab_colorNormal="@color/myPrimaryColor"
+        fab:fab_colorPressed="@color/myPrimaryDarkColor"
+        />
+
+    </FrameLayout>
 
 </LinearLayout>

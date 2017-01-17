@@ -1,11 +1,19 @@
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/ToolBarStyle" android:layout_width="match_parent"
     android:layout_height="wrap_content" android:background="?attr/colorPrimary"
-    android:minHeight="@dimen/abc_action_bar_default_height_material"
+    android:minHeight="@dimen/abc_action_bar_default_height_material">
 
-
-    >
-
-
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/av_toolbar"
+        android:visibility="invisible"
+        android:gravity="right"
+        android:layout_gravity="right"
+        android:layout_marginRight="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:indicator_color="#fff"
+        app:indicator="BallPulseSync"
+        />
 
     </android.support.v7.widget.Toolbar>

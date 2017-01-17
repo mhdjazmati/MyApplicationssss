@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
-
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
     defaultConfig {
-        applicationId "querytest.test.samer.myapplicationssss"
+        applicationId 'querytest.test.samer.myapplicationssss'
         minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 24
+        versionCode 24
+        versionName '2.4'
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -17,13 +17,40 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
-
+repositories {
+    maven {
+        url "http://dl.bintray.com/jlmd/maven"
+    }
+}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.android.support:support-v4:21.0.3'
-    compile 'com.android.support:recyclerview-v7:21.0.3'
-    compile 'com.android.support:cardview-v7:22.2.1'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
     compile project(':androidprocessbuttonmaster')
-}
+    compile project(':library')
+    compile project(':hellocharts-library')
+    compile project(':fab')
+    compile project(':floatlabelededittext')
+    compile 'com.jakewharton:butterknife:5.1.1'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okio:okio:1.10.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
+    compile 'com.flipboard:bottomsheet-core:1.5.3'
+    compile 'com.flipboard:bottomsheet-commons:1.5.3'
+    compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
+    //compile 'com.evernote:android-job:1.1.2'
+    compile project(':AndroidSlidingUpPanel')
+    compile project(':AVLoadingIndicatorView')
+    compile project(':showcasematerial')
+}//21.0.3
