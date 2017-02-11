@@ -1,5 +1,6 @@
 package querytest.test.samer.myapplicationssss;
 
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -24,6 +25,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -40,6 +44,7 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.android.AuthActivity;
 import com.dropbox.client2.session.AppKeyPair;
+import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
@@ -52,11 +57,30 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+import static android.Manifest.permission.ACCESS_NETWORK_STATE;
+import static android.Manifest.permission.ACCESS_WIFI_STATE;
+import static android.Manifest.permission.GET_TASKS;
+import static android.Manifest.permission.INTERNET;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.VIBRATE;
+import static android.Manifest.permission.WAKE_LOCK;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class MainActivity extends ActionBarActivity implements NavigationDrawerCallbacks {
     public static boolean RELOAD = false;
+    public static final String PERMISSIONS[] = {WRITE_EXTERNAL_STORAGE,
+            READ_EXTERNAL_STORAGE,
+            INTERNET,
+            VIBRATE,
+            ACCESS_WIFI_STATE,
+            ACCESS_NETWORK_STATE,
+            WAKE_LOCK,
+            GET_TASKS};
+
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
+
     public static NavigationDrawerFragment mNavigationDrawerFragment;
     private static final int IMAGE_REQUEST_CODE = 3;
 
@@ -87,8 +111,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                             ImagesFragment.gridview.setAdapter(fragmentById1.myAdapter);
                         }
                     }
-                }
-                else if (bundle.getString(CheckForNewDataService.GET_ACTION, "").equals(CheckForNewDataService.BROADCAST_CORNER_INDICATOR)) {
+                } else if (bundle.getString(CheckForNewDataService.GET_ACTION, "").equals(CheckForNewDataService.BROADCAST_CORNER_INDICATOR)) {
                     int visibility = bundle.getInt(CheckForNewDataService.VISIBILITY);
                     if (visibility == 0) avi.setVisibility(View.INVISIBLE);
                     else if (visibility == 1) avi.setVisibility(View.VISIBLE);
@@ -96,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             }
         }
     };
+    private boolean isImplicitIntent = false;
 
     @Override
     protected void onResume() {
@@ -197,6 +221,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
             if (prefs.getBoolean("isAdmin", false)) {
                 if (isNetworkAvailable()) {
+                    setContentView(R.layout.animatedcircleloadingview);
+                    AnimatedCircleLoadingView circleLodaing = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
                     AndroidAuthSession session = buildSession();
                     DropboxAPI<AndroidAuthSession> mApi = new DropboxAPI<AndroidAuthSession>(session);
                     checkAppKeySetup();
@@ -209,23 +235,19 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     String strDate = sdf.format(c.getTime());
                     String name = strDate + file.getName().substring(file.getName().lastIndexOf("."));
                     Log.e("dfghdfh", name);
-                    boolean isImplicitIntent = true;
+                    isImplicitIntent = true;
                     UploadPicture upload = new UploadPicture(this, mApi, Log_in.APP_DIR + "/images/", file, /*file.getName()*//*"pic-"+BROADCAST_NEW_DATA_IMAGES.imagePath.length+1*/
-                            name, isImplicitIntent);
+                            name, isImplicitIntent, circleLodaing);
 
                     upload.execute();
 
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(), "لايوجد اتصال أنترنت", Toast.LENGTH_LONG).show();
                 }
-            }
-            else {
+            } else {
                 Toast.makeText(getApplicationContext(), "عليك تسجيل الدخول كمدير", Toast.LENGTH_LONG).show();
             }
-        }
-
-        else {
+        } else {
             setContentView(R.layout.activity_main);
             mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             setSupportActionBar(mToolbar);
@@ -239,12 +261,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
             // populate the navigation drawer
 
-
             encodedCoverImage = prefs.getString(MySettingsActivity.PREF_KEY_COVER_PIC, null);
             if (encodedCoverImage == null) {
                 mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", BitmapFactory.decodeResource(getResources(), R.drawable.pic7));
-            }
-            else // there's a saved pic
+            } else // there's a saved pic
             {
           /*  BitmapFactory.Options options = new BitmapFactory.Options();
             byte[] decodedCoverImage = Base64.decode(encodedCoverImage,Base64.DEFAULT);
@@ -262,12 +282,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             });
             to_reminder();
             //showcase
+/*
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     //if (mNavigationDrawerFragment.isDrawerOpen()) presentShowcaseSequence();
                 }
             }, 1000);
+*/
 
             //boolean reload = getIntent().getBooleanExtra("reload", false);
             Log.e("reload", RELOAD + "");
@@ -278,14 +300,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                 }
                 getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
             }
-            if (getIntent().hasExtra("goToMessages")){
+            if (getIntent().hasExtra("goToMessages")) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_performance);
                 if (fragment == null) {
                     fragment = new MessageFragment();
                 }
                 getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
 
-            }else if (getIntent().hasExtra("goToDrs")){
+            } else if (getIntent().hasExtra("goToDrs")) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_truck);
                 if (fragment == null) {
                     fragment = new MediaFragment();
@@ -295,8 +317,22 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             }
 
         }
+
+        int MyVersion = Build.VERSION.SDK_INT;
+        if (MyVersion > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (!checkIfAlreadyHavePermission(READ_EXTERNAL_STORAGE) || !checkIfAlreadyHavePermission(WRITE_EXTERNAL_STORAGE) || !checkIfAlreadyHavePermission(INTERNET) || !checkIfAlreadyHavePermission(VIBRATE) || !checkIfAlreadyHavePermission(ACCESS_WIFI_STATE) || !checkIfAlreadyHavePermission(ACCESS_NETWORK_STATE) || !checkIfAlreadyHavePermission(WAKE_LOCK) || !checkIfAlreadyHavePermission(GET_TASKS)) {
+                requestForSpecificPermission();
+            }
+        }
     }
 
+    private void requestForSpecificPermission() {
+        ActivityCompat.requestPermissions(this, PERMISSIONS, 101);
+    }
+
+    private boolean checkIfAlreadyHavePermission(String permission) {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+    }
 
     private void presentShowcaseSequence() {
 
@@ -451,8 +487,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     startActivity(i);
                     break;
             }
-        }
-        else {
+        } else {
             switch (position) {
                 case 0: //images//
                     fragment = getFragmentManager().findFragmentById(R.id.fragment_images);
@@ -496,6 +531,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
 
     @Override
     public void onBackPressed() {
+        if (isImplicitIntent) {
+            isImplicitIntent = false;
+            finish();
+            return;
+        }
         if (mNavigationDrawerFragment.isDrawerOpen()) mNavigationDrawerFragment.closeDrawer();
         else {
             // mhdjazmati MODS
@@ -518,8 +558,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             mNavigationDrawerFragment.openDrawer();
             if (exit) {
                 finish();
-            }
-            else {
+            } else {
                 Toast.makeText(this, "اضغط رجوع مرة ثانية للخروج", Toast.LENGTH_LONG).show();
                 exit = true;
                 new Handler().postDelayed(new Runnable() {
@@ -622,6 +661,7 @@ format);
      * Get a file path from a Uri. This will get the the path for Storage Access
      * Framework Documents, as well as the _data field for the MediaStore and
      * other file-based ContentProviders.
+     *
      * @param context The context.
      * @param uri     The Uri to query.
      * @author paulburke
@@ -662,11 +702,9 @@ format);
                 Uri contentUri = null;
                 if ("image".equals(type)) {
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                }
-                else if ("video".equals(type)) {
+                } else if ("video".equals(type)) {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                }
-                else if ("audio".equals(type)) {
+                } else if ("audio".equals(type)) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
 
@@ -695,6 +733,7 @@ format);
     /**
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
+     *
      * @param context       The context.
      * @param uri           The Uri to query.
      * @param selection     (Optional) Filter used in the query.
