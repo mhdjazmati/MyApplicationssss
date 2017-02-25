@@ -190,18 +190,17 @@ public class MySettingsActivity extends ActionBarActivity implements Crop.ImageC
     @Override
     public void onImageCropped(String filePath, String error) {
         Log.e("cropped file path",filePath);
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("TEST_NAME", MODE_PRIVATE);
-            SharedPreferences.Editor editor = pref.edit();
-            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-            String tobase64 = encodeTobase64(bitmap);
-            editor.putString(PREF_KEY_COVER_PIC, tobase64);
-            editor.apply();
-            MainActivity.mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", decodeBase64(tobase64));
+//            SharedPreferences pref = getApplicationContext().getSharedPreferences("TEST_NAME", MODE_PRIVATE);
+//            SharedPreferences.Editor editor = pref.edit();
+//            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+//            String tobase64 = encodeTobase64(bitmap);
+//            editor.putString(PREF_KEY_COVER_PIC, tobase64);
+//            editor.apply();
 
             //File file = new File(MainActivity.getPath(this, fileURI));
             String pictureName = Log_in.userlogininfo.optString("user_name")+"."+ mFileTemp.getName().split(Pattern.quote("."))[1] ;
             UploadPicture upload = new UploadPicture(this, Log_in.mApi, Log_in.APP_DIR + "/pics/",mFileTemp
-                    , pictureName);
+                    , pictureName,true);
             upload.execute();
 
 

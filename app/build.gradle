@@ -7,8 +7,8 @@ android {
         applicationId 'querytest.test.samer.myapplicationssss'
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 24
-        versionName '2.4'
+        versionCode 25
+        versionName '2.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -48,7 +48,7 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
     compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
-    //compile 'com.evernote:android-job:1.1.2'
+    compile 'com.evernote:android-job:1.1.6'
     //compile project(':AndroidSlidingUpPanel')
     compile project(':AVLoadingIndicatorView')
     compile project(':showcasematerial')
@@ -56,4 +56,5 @@ dependencies {
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'com.mikhaellopez:circularimageview:3.0.2'
 
+    compile 'com.google.android.gms:play-services:10.0.1'
 }//21.0.3

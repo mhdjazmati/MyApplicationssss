@@ -25,7 +25,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -45,6 +47,7 @@ import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.android.AuthActivity;
 import com.dropbox.client2.session.AppKeyPair;
 import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
@@ -57,6 +60,8 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.ACCESS_NETWORK_STATE;
 import static android.Manifest.permission.ACCESS_WIFI_STATE;
 import static android.Manifest.permission.GET_TASKS;
@@ -65,36 +70,47 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.VIBRATE;
 import static android.Manifest.permission.WAKE_LOCK;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static querytest.test.samer.myapplicationssss.PrayerTime.calcPrayer;
+import static querytest.test.samer.myapplicationssss.R.id.container;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerCallbacks {
     public static boolean RELOAD = false;
     public static final String PERMISSIONS[] = {WRITE_EXTERNAL_STORAGE,
             READ_EXTERNAL_STORAGE,
+            ACCESS_COARSE_LOCATION,
             INTERNET,
             VIBRATE,
             ACCESS_WIFI_STATE,
             ACCESS_NETWORK_STATE,
             WAKE_LOCK,
-            GET_TASKS};
+            ACCESS_FINE_LOCATION};
+
+
+    public static ArrayList<String> prayerTimes;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
 
+    static boolean isProfileFileExist = false;
+    static String LatLng = null;
     public static NavigationDrawerFragment mNavigationDrawerFragment;
     private static final int IMAGE_REQUEST_CODE = 3;
 
     private Toolbar mToolbar;
-    private ImageView avatar;
+    private CircularImageView avatar;
     public static SharedPreferences prefs;
     public static String encodedCoverImage;
     public boolean exit;
     public static AVLoadingIndicatorView avi;
-
+    public static void showGpsSettings(Context context){
+        Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        context.startActivity(intent);
+    }
     BroadcastReceiver newDataReciver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Fragment fragmentById = getFragmentManager().findFragmentById(R.id.container);
+            Fragment fragmentById = getFragmentManager().findFragmentById(container);
             String simpleClassName = fragmentById.getClass().getSimpleName();
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
@@ -261,26 +277,33 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
             mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
             // populate the navigation drawer
 
-            encodedCoverImage = prefs.getString(MySettingsActivity.PREF_KEY_COVER_PIC, null);
-            if (encodedCoverImage == null) {
-                mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", BitmapFactory.decodeResource(getResources(), R.drawable.pic7));
-            } else // there's a saved pic
-            {
-          /*  BitmapFactory.Options options = new BitmapFactory.Options();
-            byte[] decodedCoverImage = Base64.decode(encodedCoverImage,Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedCoverImage, 0,decodedCoverImage.length);*/
-
-                mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", /*decodedByte*/decodeBase64(encodedCoverImage));
-                //mNavigationDrawerFragment.setUserData("Mohammad Djazmati", "mhdjazmati@gmail.com", BitmapFactory.decodeFile(encodedCoverImage));
+            LatLng = prefs.getString("LatLng", null);
+            if((LatLng!=null && !LatLng.isEmpty())) {
+                prayerTimes = calcPrayer(Double.parseDouble(LatLng.split("_")[0]),Double.parseDouble(LatLng.split("_")[1]));
+                Log.e("prayerTimes",prayerTimes.toString());
+            }else{
+                Snackbar.make(findViewById(container),"يجب أن تتيح للبرنامج استعمال محدد الموقع لتحديد أوقات الصلاه!!",Snackbar.LENGTH_INDEFINITE).show();
             }
-            avatar = (ImageView) findViewById(R.id.imgAvatar);
+            //encodedCoverImage = prefs.getString(MySettingsActivity.PREF_KEY_COVER_PIC, null);
+            avatar = (CircularImageView) findViewById(R.id.imgAvatar);
             avatar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(MainActivity.this, "لتغيير الصورة اذهب للاعدادت", Toast.LENGTH_SHORT).show();
                 }
             });
-            to_reminder();
+            /*if (encodedCoverImage == null) {
+            } else // there's a saved pic
+            {
+          *//*  BitmapFactory.Options options = new BitmapFactory.Options();
+            byte[] decodedCoverImage = Base64.decode(encodedCoverImage,Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedCoverImage, 0,decodedCoverImage.length);*//*
+
+                mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", *//*decodedByte*//*decodeBase64(encodedCoverImage));
+                //mNavigationDrawerFragment.setUserData("Mohammad Djazmati", "mhdjazmati@gmail.com", BitmapFactory.decodeFile(encodedCoverImage));
+            }*/
+
+       //////////////////////     to_reminder();
             //showcase
 /*
             new Handler().postDelayed(new Runnable() {
@@ -298,32 +321,31 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                 if (fragment == null) {
                     fragment = new ProgramFragment();
                 }
-                getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                getFragmentManager().beginTransaction().replace(container, fragment).commit();
             }
             if (getIntent().hasExtra("goToMessages")) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_performance);
                 if (fragment == null) {
                     fragment = new MessageFragment();
                 }
-                getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                getFragmentManager().beginTransaction().replace(container, fragment).commit();
 
             } else if (getIntent().hasExtra("goToDrs")) {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_truck);
                 if (fragment == null) {
                     fragment = new MediaFragment();
                 }
-                getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                getFragmentManager().beginTransaction().replace(container, fragment).commit();
 
             }
 
         }
+    }
 
-        int MyVersion = Build.VERSION.SDK_INT;
-        if (MyVersion > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            if (!checkIfAlreadyHavePermission(READ_EXTERNAL_STORAGE) || !checkIfAlreadyHavePermission(WRITE_EXTERNAL_STORAGE) || !checkIfAlreadyHavePermission(INTERNET) || !checkIfAlreadyHavePermission(VIBRATE) || !checkIfAlreadyHavePermission(ACCESS_WIFI_STATE) || !checkIfAlreadyHavePermission(ACCESS_NETWORK_STATE) || !checkIfAlreadyHavePermission(WAKE_LOCK) || !checkIfAlreadyHavePermission(GET_TASKS)) {
-                requestForSpecificPermission();
-            }
-        }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mNavigationDrawerFragment.setUserData(Log_in.userlogininfo.optString("user_name"), "fahyaynaho@gmail.com", isProfileFileExist);
     }
 
     private void requestForSpecificPermission() {
@@ -447,7 +469,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                         fragment = new ImagesFragment();
 
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("معرض الصور");
                     break;
                 case 1: //drivers
@@ -455,7 +477,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new UserFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("مستخدمون");
                     break;
                 case 2: //trucks //
@@ -463,7 +485,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new MediaFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("دروس");
                     break;
                 case 3: //performance //
@@ -471,7 +493,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new MessageFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("الرسائل");
                     break;
                 case 4: //events//
@@ -479,7 +501,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new ProgramFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("البرنامج");
                     break;
                 case 5: //events//
@@ -494,7 +516,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new ImagesFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("معرض الصور");
                     break;
                 case 1: //trucks //
@@ -502,7 +524,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new MediaFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("دروس");
                     break;
                 case 2: //performance //
@@ -510,7 +532,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new MessageFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("الرسائل");
                     break;
                 case 3: //events//
@@ -518,7 +540,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerC
                     if (fragment == null) {
                         fragment = new ProgramFragment();
                     }
-                    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+                    getFragmentManager().beginTransaction().replace(container, fragment).commit();
                     if (actionBar != null) actionBar.setTitle("البرنامج");
                     break;
                 case 4: //events//

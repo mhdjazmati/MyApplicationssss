@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.GET_TASKS" />
 
@@ -98,13 +100,6 @@
             android:label="@string/title_activity_view_user_prog"
             android:theme="@style/ChartTheme" >
         </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:icon="@mipmap/ic_launcher"
-            android:immersive="true"
-            android:label="@string/title_activity_view_user_prog"
-            android:theme="@style/AppTheme.Dark" >
-        </activity>
 
         <receiver
             android:name=".TimerReceiver"
@@ -126,10 +121,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="querytest.test.samer.myapplicationssss.MainActivity" />
-        </activity>
-        <activity
-            android:name=".MainActivity2Activity"
-            android:label="@string/title_activity_main_activity2" >
         </activity>
 
         <service

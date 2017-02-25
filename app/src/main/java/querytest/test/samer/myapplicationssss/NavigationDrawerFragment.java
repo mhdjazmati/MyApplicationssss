@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -23,6 +25,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,12 +35,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mikhaellopez.circularimageview.CircularImageView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+
+import static querytest.test.samer.myapplicationssss.Log_in.m_username;
+import static querytest.test.samer.myapplicationssss.R.id.imageView;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -104,8 +118,8 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(navigationItems);
         adapter.setNavigationDrawerCallbacks(this);
         mDrawerList.setAdapter(adapter);
-        if(!MainActivity.RELOAD)
-        selectItem(mCurrentSelectedPosition);
+        if (!MainActivity.RELOAD)
+            selectItem(mCurrentSelectedPosition);
         Animation animation = AnimationUtils.loadAnimation(mDrawerList.getContext(), R.anim.up_from_bottom);
         mDrawerList.startAnimation(animation);
 
@@ -118,6 +132,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
 
         return view;
     }
+
     private void presentShowcaseSequence() {
 
         ShowcaseConfig config = new ShowcaseConfig();
@@ -284,7 +299,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
                             .getDefaultSharedPreferences(getActivity());
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
-      //////          presentShowcaseSequence();
+                //////          presentShowcaseSequence();
 
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
 
@@ -355,11 +370,19 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         mActionBarDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    public void setUserData(String user, String email, Bitmap avatar) {
-        ImageView avatarContainer = (ImageView) mFragmentContainerView.findViewById(R.id.imgAvatar);
-        ((TextView) mFragmentContainerView.findViewById(R.id.txtUserEmail)).setText(email);
+    public void setUserData(final String user, String email, final boolean avatarURL) {
+        final CircularImageView avatarContainer = (CircularImageView) mFragmentContainerView.findViewById(R.id.imgAvatar);
+        if (avatarURL) {
+            String pathName = getActivity().getCacheDir().getAbsolutePath() + "/" + m_username + ".JPG";
+            Log.e("dfgdfg",pathName);
+            File g = new File(pathName);
+            Bitmap myBitmap = BitmapFactory.decodeFile(g.getAbsolutePath());
+            avatarContainer.setImageBitmap(myBitmap);
+
+        }
+        //((TextView) mFragmentContainerView.findViewById(R.id.txtUserEmail)).setText(email);
         ((TextView) mFragmentContainerView.findViewById(R.id.txtUsername)).setText(user);
-        avatarContainer.setImageDrawable(new RoundImage(avatar));
+        //avatarContainer.setImageDrawable(new RoundImage(avatar));
     }
 
     public View getGoogleDrawer() {

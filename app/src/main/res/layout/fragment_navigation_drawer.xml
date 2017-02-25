@@ -1,45 +1,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:id="@+id/googleDrawer"
-                android:background="@android:color/white">
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/googleDrawer"
+    android:background="@android:color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="168dp"
-        android:background="@drawable/i6"
+        android:background="@drawable/nav_header"
         android:id="@+id/navigationHeader"
-        android:paddingTop="24dp">
+        android:paddingTop="16dp">
 
         <com.mikhaellopez.circularimageview.CircularImageView
-            android:layout_width="0dp"
+            android:id="@+id/imgAvatar"
+            android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_weight="1"
             android:src="@drawable/profile_placeholder"
-            app:civ_border_color="#3f51b5"
+            app:civ_border_color="@color/myPrimaryColor"
             app:civ_border_width="2dp"
             app:civ_shadow="true"
-            app:civ_shadow_color="#3f51b5"
-            app:civ_shadow_radius="5" />
-
-        <ImageView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:id="@+id/imgAvatar"
+            app:civ_shadow_color="@color/myPrimaryDarkColor"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-
-            />
+            app:civ_shadow_radius="5" />
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="56dp"
-            android:gravity="left"
+            android:layout_height="match_parent"
+            android:gravity="start"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/imgAvatar"
@@ -48,16 +43,17 @@
             android:layout_marginBottom="8dp">
 
             <TextView
-                android:gravity="left"
+
+                android:gravity="start"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/txtUsername"
-                android:layout_weight="1"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"/>
 
             <TextView
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:id="@+id/txtUserEmail"
@@ -68,7 +64,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:background="#1f000000"
+        android:background="@android:color/transparent"
         android:layout_height="1dp"
         android:id="@+id/separator"
         android:layout_below="@+id/navigationHeader"

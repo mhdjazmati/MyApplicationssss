@@ -7,16 +7,24 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -48,6 +56,18 @@ import com.dropbox.client2.exception.DropboxPartialFileException;
 import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
 import com.dropbox.client2.session.AppKeyPair;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -63,20 +83,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import de.cketti.library.changelog.ChangeLog;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static querytest.test.samer.myapplicationssss.MainActivity.LatLng;
+import static querytest.test.samer.myapplicationssss.MainActivity.PERMISSIONS;
+import static querytest.test.samer.myapplicationssss.MainActivity.isProfileFileExist;
+import static querytest.test.samer.myapplicationssss.MainActivity.showGpsSettings;
 
-public class Log_in extends ActionBarActivity {
+
+public class Log_in extends AppCompatActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static final String ACCESS_TOKEN = "YbyokGh9a44AAAAAAAAGeHQxY3WBt1QvMcXKkFS92RnQRPdHrFRg4DaJGbqut_c5";
     public static final String SHOWCASE_ID = "show_case";
     private String mErrorMsg;
@@ -156,11 +179,38 @@ public class Log_in extends ActionBarActivity {
     ImageView sw;
     public static JSONObject jsonResponse;
     public MaterialShowcaseSequence sequence;
+    private Handler autoConnectHandler;
+    private Runnable r;
+    private GoogleApiClient mGoogleApiClient;
+    private PendingResult<LocationSettingsResult> result;
+    private LocationRequest mLocationRequest;
+    private AVLoadingIndicatorDialog locProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+        r = new Runnable() {
+            @Override
+            public void run() {
+
+                //requestForSpecificPermission();
+                ChangeLog cl = new ChangeLog(Log_in.this);
+                //if (!isPresentShowcaseSequence() || cl.isFirstRun()) {
+                ////////////////sequence.start();
+                if (cl.isFirstRun()) cl.getLogDialog().show();
+                    //}
+                else {
+                    if (prefs.getBoolean("autoSignIn", false)) {
+                        pword.setText(prefs.getString("pwrd", ""));
+                        m_username = user_name.getText().toString().trim();
+                        m_password = pword.getText().toString().trim();
+                        on_click_login();
+
+                    }
+                }
+            }
+        };
         // setSupportActionBar((Toolbar) findViewById(R.id.toolbar_actionbar));
         //WebAuthSession sourceSession = new WebAuthSession(state.appKey, Session.AccessType.DROPBOX, sourceAccess);
         //DropboxAPI<?> sourceClient = new DropboxAPI<WebAuthSession>(sourceSession);
@@ -248,8 +298,8 @@ public class Log_in extends ActionBarActivity {
         prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, MODE_PRIVATE);
         // Set<String> set = prefs.getStringSet("imagePaths", null);
 
+        LatLng = prefs.getString("LatLng", null);
         setupFilesForOfflineMod();
-        // TODO
         user_name.setText(prefs.getString("name", ""));
 
 
@@ -293,6 +343,17 @@ public class Log_in extends ActionBarActivity {
         SharedPreferences.Editor edit = prefs.edit();
         edit.putInt("curVersion", curVersion);
         edit.apply();
+
+        if (LatLng == null) {
+
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .build();
+            }
+        }
     }
 
     private void setupFilesForOfflineMod() {
@@ -382,6 +443,40 @@ public class Log_in extends ActionBarActivity {
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient != null) {
+            Log.d("LocationActivity", "onStop fired ..............");
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 99:
+                if (grantResults.length > 0) {
+                    for (int i = 0, grantResultsLength = grantResults.length; i < grantResultsLength; i++) {
+                        if (grantResults[i] != PERMISSION_GRANTED) {
+                            Toast.makeText(this, "يحتاج التطبيق الى أذنك لكي يعمل !" + permissions[i] + "!", Toast.LENGTH_SHORT).show();
+                            finish();
+                            return;
+                        }
+                    }
+                    // All good!
+                    mGoogleApiClient.connect();
+                    autoConnectHandler = new Handler();
+                    autoConnectHandler.postDelayed(r, 500);
+
+                } else {
+                    Toast.makeText(this, "يحتاج التطبيق الى أذنك لكي يعمل !", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+                break;
+        }
+    }
 
     /**
      * Dispatch onStart() to all fragments.  Ensure any created loaders are
@@ -392,29 +487,29 @@ public class Log_in extends ActionBarActivity {
         super.onStart();
         ObjectAnimator moveAnim = ObjectAnimator.ofFloat(supl, "Y", -1300, 0);
 
-        moveAnim.setDuration(1700);
+        moveAnim.setDuration(1300);
         moveAnim.setStartDelay(10);
         moveAnim.setInterpolator(new BounceInterpolator());
         moveAnim.start();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ChangeLog cl = new ChangeLog(Log_in.this);
-                //if (!isPresentShowcaseSequence() || cl.isFirstRun()) {
-                    ////////////////sequence.start();
-                    if(cl.isFirstRun())cl.getLogDialog().show();
-                //}
-                else {
-                    if (prefs.getBoolean("autoSignIn", false)) {
-                        pword.setText(prefs.getString("pwrd", ""));
-                        m_username = user_name.getText().toString().trim();
-                        m_password = pword.getText().toString().trim();
-                        on_click_login();
 
-                    }
-                }
-            }
-        }, 500);
+        if (ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[0])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[1])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[2])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[3])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[4])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[5])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[6])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[7])
+                != PERMISSION_GRANTED || ContextCompat.checkSelfPermission(Log_in.this, PERMISSIONS[8])
+                != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Log_in.this, PERMISSIONS, 99);
+        } else {
+            if (LatLng == null) {
+                mGoogleApiClient.connect();
+            } else {
+                resumeAutoConnect();
+            }            //showGpsSettings(this);
+        }
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -427,7 +522,6 @@ public class Log_in extends ActionBarActivity {
                     @Override
                     public void run() {
                         *//*isPresentShowcaseSequence();
-
                         ChangeLog cl = new ChangeLog(Log_in.this);
                         if (cl.isFirstRun()) {
                             cl.getLogDialog().show();
@@ -439,39 +533,38 @@ public class Log_in extends ActionBarActivity {
 
     }
 
+    private void resumeAutoConnect() {
+        autoConnectHandler = new Handler();
+        autoConnectHandler.postDelayed(r, 500);
+    }
+
     public void on_click_login() {
 
         if (!m_username.trim().isEmpty() && !m_password.trim().isEmpty()) {
-//TODO fix network prossesing after finish with the offline mod
-            if (cachePath != null || isNetworkAvailable())// checking Internet access
+            if ((cachePath != null && prefs.getString("userProgram",null)!=null) || isNetworkAvailable())// checking Internet access
             {
-
                 btnSignIn.setProgress(mProgress);
                 // start logging in task
                 message.setText("يتم الولوج إلى المخدم");
                 AsyncLogin logintask = new AsyncLogin();
                 logintask.execute(m_username, m_password);
-            }
-            else {
+            } else {
                 btnSignIn.setProgress(-1);
                 btnSignIn.setText("خطأ انترنت");
                 message.setText("لايوجد اتصال بيانات , الرجاء تأكد من الاتصال");
                 Toast.makeText(Log_in.this, "لايوجد اتصال بيانات , الرجاء تأكد من الاتصال", Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
+        } else {
             if (m_username.trim().isEmpty()) {
                 user_name.setError("الرجاء ادخال اسم مستخدم");
 
-            }
-            else {
+            } else {
                 user_name.setError(null);
             }
             if (m_password.trim().isEmpty() || m_password.length() < 3) {
                 pword.setError("يجب ان تكون كلمه المرور اكثر من 3 محارف");
 
-            }
-            else {
+            } else {
                 pword.setError(null);
             }
         }
@@ -480,43 +573,6 @@ public class Log_in extends ActionBarActivity {
     }
 
 
-    public void signUp(View view) {
-        dialog = new Dialog(this);
-        dialog.setTitle("إنشاء حساب جديد");
-        dialog.setContentView(R.layout.layout_alert_dialog_signup);
-        dialog.setCancelable(false);
-        dialog.show();
-        final EditText user = (EditText) dialog.findViewById(R.id.alertusername);
-        final EditText pswrd = (EditText) dialog.findViewById(R.id.alertpswrd);
-        Button ok = (Button) dialog.findViewById(R.id.button3);
-        ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (user.getText().toString().trim().equals("")) {
-                    user.setHint("الرجاء ادخل الاسم");
-                    return;
-                }
-                else if (pswrd.getText().toString().trim().equals("")) {
-                    pswrd.setHint("الرجاء ادخل كلمه المرور");
-                    return;
-                }
-                String prefix = pswrd.getText().toString().trim() + "--" + user.getText().toString().trim();
-                File file = new File(getCacheDir(), prefix);
-                dialog.dismiss();
-                new AsyncSignUp(file).execute();
-
-            }
-        });
-        Button cansel = (Button) dialog.findViewById(R.id.button4);
-        cansel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-    }
-
     boolean flip;
 
     public void changelogo(View view) {
@@ -524,8 +580,7 @@ public class Log_in extends ActionBarActivity {
             j.setImageResource(R.drawable.w);
             flip = !flip;
 
-        }
-        else {
+        } else {
             j.setImageResource(R.drawable.ww);
             flip = !flip;
         }
@@ -537,6 +592,153 @@ public class Log_in extends ActionBarActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Toast.makeText(this, "con", Toast.LENGTH_SHORT).show();
+        Location mLastLocation;
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Log_in.this, PERMISSIONS, 99);
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            Toast.makeText(this, mLastLocation.getLatitude() + " " + mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            if (mGoogleApiClient.isConnected())
+                stopLocationUpdates();
+            if (mGoogleApiClient != null) {
+                Log.d("LocationActivity", "onStop fired ..............");
+                mGoogleApiClient.disconnect();
+            }
+            prefs.edit().putString("LatLng",mLastLocation.getLatitude()+"_"+mLastLocation.getLongitude()).apply();
+            resumeAutoConnect();
+        } else {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(600);
+            //mLocationRequest.setFastestInterval(1000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+            //mLocationRequest.setNumUpdates(1);
+            //mLocationRequest.setExpirationDuration(5000);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(mLocationRequest);
+            result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                    builder.build());
+
+
+            result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+                @Override
+                public void onResult(@NonNull LocationSettingsResult result) {
+                    final Status status = result.getStatus();
+                    final LocationSettingsStates locationSettingsStates = result.getLocationSettingsStates();
+                    switch (status.getStatusCode()) {
+                        case LocationSettingsStatusCodes.SUCCESS:
+                            // All location settings are satisfied. The client can
+                            // initialize location requests here.
+                            Toast.makeText(Log_in.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                            if (ActivityCompat.checkSelfPermission(Log_in.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+                            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, Log_in.this);
+                            locProgressDialog = new AVLoadingIndicatorDialog(Log_in.this);
+                            locProgressDialog.setMessage("جار جلب الموقع لحساب اوقات الصلاة..");
+                            locProgressDialog.setCancelable(false);
+                            locProgressDialog.show();
+                            break;
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            // Location settings are not satisfied, but this can be fixed
+                            // by showing the user a dialog.
+                            try {
+                                // Show the dialog by calling startResolutionForResult(),
+                                // and check the result in onActivityResult().
+                                status.startResolutionForResult(
+                                        Log_in.this,
+                                        3);
+                                Toast.makeText(Log_in.this, "RESOLUTION_REQUIRED", Toast.LENGTH_SHORT).show();
+                            } catch (IntentSender.SendIntentException e) {
+                                // Ignore the error.
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            // Location settings are not satisfied. However, we have no way
+                            // to fix the settings so we won't show the dialog.
+                            Toast.makeText(Log_in.this, "SETTINGS_CHANGE_UNAVAILABLE", Toast.LENGTH_SHORT).show();
+
+                            break;
+                    }
+                }
+            });
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+        Toast.makeText(this, "ConnectionSuspended", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        Toast.makeText(this, connectionResult.getErrorMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.e("resultCode", resultCode + "");
+        Log.e("reqCode", requestCode + "");
+        if (requestCode == 3 && resultCode == RESULT_OK) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locProgressDialog = new AVLoadingIndicatorDialog(Log_in.this);
+            locProgressDialog.setMessage("جار جلب الموقع لحساب اوقات الصلاة..");
+            locProgressDialog.setCancelable(false);
+            locProgressDialog.show();
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, Log_in.this);
+
+        } else if (requestCode == 3) {
+            Snackbar.make(user_name, "للمتابعة يجب على البرنامج ان يعلم موقعك من أجل اوقات الصلاه!", Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient != null) {
+            if (mGoogleApiClient.isConnected())
+                stopLocationUpdates();
+        }
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //mCurrentLocation = location;
+        //String mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        //Toast.makeText(this, location.getLatitude() + " " + location.getLongitude() + " " + mLastUpdateTime, Toast.LENGTH_SHORT).show();
+        prefs.edit().putString("LatLng",location.getLatitude()+"_"+location.getLongitude()).apply();
+        if (locProgressDialog != null) {
+            if (locProgressDialog.isShowing()) {
+                locProgressDialog.dismiss();
+            }
+        }
+        if (mGoogleApiClient.isConnected())
+            stopLocationUpdates();
+        if (mGoogleApiClient != null) {
+            Log.d("LocationActivity", "onStop fired ..............");
+            mGoogleApiClient.disconnect();
+        }
+       // resumeAutoConnect();
+    }
 
     private class AsyncLogin extends AsyncTask<String, Void, Void> {
         Boolean loginVerifed = false;
@@ -557,8 +759,27 @@ public class Log_in extends ActionBarActivity {
                     File cashFile = new File(cachePath);
                     isCashFileExists = cashFile.exists();
                 }
+                File fff1 = new File(Log_in.this.getCacheDir().getAbsolutePath() + "/" + params[0] + ".JPG");
+                if (fff1.exists()) {
+                    isProfileFileExist = prefs.getBoolean("isProfileFileExist", false);
+                }
+                if (!isProfileFileExist) {
+                    try {
+                        try {
+                            mFos = new FileOutputStream(Log_in.this.getCacheDir().getAbsolutePath() + "/" + params[0] + ".JPG");
+                        } catch (FileNotFoundException e) {
+                            mErrorMsg = "Couldn't create a local file to store the image";
+                        }
+                        mApi.getFile(APP_DIR + "/pics/" + params[0] + ".JPG", null, mFos, null);
+                        prefs.edit().putBoolean("isProfileFileExist", true).apply();
+                        isProfileFileExist = true;
+                    } catch (DropboxServerException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-                if (/*isNetworkAvailable()*/cachePath == null || isDeifferentName || !isCashFileExists) {
+                String progcachePath = null;
+                if (/*isNetworkAvailable()*/cachePath == null || isDeifferentName || !isCashFileExists || prefs.getString("userProgram",null)==null) {
                     // Get the metadata for a directory
                     DropboxAPI.Entry dirent = mApi.metadata(APP_DIR, 1000, null, true, null);
                     if (!dirent.isDir || dirent.contents == null) {
@@ -578,6 +799,24 @@ public class Log_in extends ActionBarActivity {
                             thumbs.add(ent);
                             String path = ent.path;
                             mFileLen = ent.bytes;
+                            break;
+                        }
+
+                    }
+                    DropboxAPI.Entry progdirent = mApi.metadata(APP_DIR + "/user_prog/", 1000, null, true, null);
+                    if (!progdirent.isDir || progdirent.contents == null) {
+                        // It's not a directory, or there's nothing in it
+                        mErrorMsg = "File or empty directory";
+                        //return false;
+                    }
+                    // Make a list of everything in it that we can get a thumbnail for
+                    ArrayList<DropboxAPI.Entry> progthumbs = new ArrayList<>();
+                    for (DropboxAPI.Entry ent : progdirent.contents) {
+                        final String replace = ent.fileName().replace(".json", "");
+                        if (replace.equals(params[0])) {
+                            progthumbs.add(ent);
+                            String progpath = ent.path;
+                            //mprogFileLen = ent.bytes;
                             break;
                         }
 
@@ -607,7 +846,7 @@ public class Log_in extends ActionBarActivity {
                     }
 
 
-                    if (thumbs.size() == 0) {
+                    if (thumbs.size() == 0 || progthumbs.size() == 0) {
                         // No thumbs in that directory
                         mErrorMsg = "No pictures in that directory";
                         loginVerifed = false;
@@ -626,7 +865,7 @@ public class Log_in extends ActionBarActivity {
                     }
 
                     cachePath = Log_in.this.getCacheDir().getAbsolutePath() + "/" + thumbs.get(0).fileName();
-                    //String cachePath = Environment.getExternalStorageDirectory().getAbsolutePath()+APP_DIR+ thumbs.get(0).fileName();
+                    progcachePath = Environment.getDataDirectory().getAbsolutePath() + APP_DIR + "/user_config/" + progthumbs.get(0).fileName();
                     try {
                         mFos = new FileOutputStream(cachePath);
                     } catch (FileNotFoundException e) {
@@ -634,6 +873,8 @@ public class Log_in extends ActionBarActivity {
                     }
 
                     mApi.getFile(thumbs.get(0).path, null, mFos, null);
+                    mApi.getFile(progthumbs.get(0).path, null, new FileOutputStream(progcachePath), null);
+
                     // This downloads a smaller, thumbnail version of the file.  The
                     // API to download the actual file is roughly the same.
                     //    mApi.getThumbnail(path, mFos, DropboxAPI.ThumbSize.BESTFIT_960x640,
@@ -641,8 +882,7 @@ public class Log_in extends ActionBarActivity {
 
                     //     mDrawable = Drawable.createFromPath(cachePath);
                     // We must have a legitimate picture
-                }
-                else {
+                } else {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -652,23 +892,24 @@ public class Log_in extends ActionBarActivity {
                 }
 
                 File fff = new File(cachePath);
-
                 FileInputStream fIn = new FileInputStream(fff);
                 InputStreamReader isr = new InputStreamReader(fIn);
-                /* Prepare a char-Array that will
-                * hold the chars we read back in. */
                 char[] inputBuffer = new char[(int) fff.length()];
-
-                // Fill the Buffer with data from the file
                 isr.read(inputBuffer);
-
-                // Transform the chars to a String
                 String readString = new String(inputBuffer);
-                List<String> allNames = new ArrayList<>();
                 jsonResponse = new JSONObject(readString);
+
+                /* to read the user prog */
+                fff = new File(progcachePath);
+                fIn = new FileInputStream(fff);
+                isr = new InputStreamReader(fIn);
+                inputBuffer = new char[(int) fff.length()];
+                isr.read(inputBuffer);
+                readString = new String(inputBuffer);
+                userprogram = new JSONObject(readString);
+
                 JSONArray user = jsonResponse.getJSONArray("user");
                 userlogininfo = user.getJSONObject(0);
-                userprogram = user.getJSONObject(1);
                 dates = jsonResponse.getJSONArray("dates");
 
                 //    JSONObject jsonfile = new JSONObject(readString);
@@ -708,28 +949,21 @@ public class Log_in extends ActionBarActivity {
                 // but we don't do anything special with them here.
                 if (e.error == DropboxServerException._304_NOT_MODIFIED) {
                     // won't happen since we don't pass in revision with metadata
-                }
-                else if (e.error == DropboxServerException._401_UNAUTHORIZED) {
+                } else if (e.error == DropboxServerException._401_UNAUTHORIZED) {
                     // Unauthorized, so we should unlink them.  You may want to
                     // automatically log the user out in this case.
-                }
-                else if (e.error == DropboxServerException._403_FORBIDDEN) {
+                } else if (e.error == DropboxServerException._403_FORBIDDEN) {
                     // Not allowed to access this
-                }
-                else if (e.error == DropboxServerException._404_NOT_FOUND) {
+                } else if (e.error == DropboxServerException._404_NOT_FOUND) {
                     // path not found (or if it was the thumbnail, can't be
                     // thumbnailed)
-                }
-                else if (e.error == DropboxServerException._406_NOT_ACCEPTABLE) {
+                } else if (e.error == DropboxServerException._406_NOT_ACCEPTABLE) {
                     // too many entries to return
-                }
-                else if (e.error == DropboxServerException._415_UNSUPPORTED_MEDIA) {
+                } else if (e.error == DropboxServerException._415_UNSUPPORTED_MEDIA) {
                     // can't be thumbnailed
-                }
-                else if (e.error == DropboxServerException._507_INSUFFICIENT_STORAGE) {
+                } else if (e.error == DropboxServerException._507_INSUFFICIENT_STORAGE) {
                     // user is over quota
-                }
-                else {
+                } else {
                     // Something else
                 }
                 // This gets the Dropbox error, translated into the user's language
@@ -761,23 +995,22 @@ public class Log_in extends ActionBarActivity {
                 SharedPreferences.Editor edit = prefs.edit();
                 edit.putString("name", m_username);
                 edit.putString("userFilePath", cachePath);
+                edit.putString("userProgram", userprogram.toString());
                 edit.putBoolean("isAdmin", isAdmin);
                 edit.apply();
                 btnSignIn.setProgress(100);
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                if(getIntent().hasExtra("goToMessages")){
-                    i.putExtra("goToMessages",true);
-                }
-                else if(getIntent().hasExtra("goToDrs")){
-                    i.putExtra("goToDrs",true);
+                if (getIntent().hasExtra("goToMessages")) {
+                    i.putExtra("goToMessages", true);
+                } else if (getIntent().hasExtra("goToDrs")) {
+                    i.putExtra("goToDrs", true);
                 }
                 // Starting Main-Activity
                 startActivity(i);
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 finish();
 
-            }
-            else {
+            } else {
                 btnSignIn.setProgress(-1);
                 btnSignIn.setText("خطأ في الولوج");
                 message.setText(mErrorMsg);
@@ -901,18 +1134,14 @@ public class Log_in extends ActionBarActivity {
                 if (e.error == DropboxServerException._401_UNAUTHORIZED) {
                     // Unauthorized, so we should unlink them.  You may want to
                     // automatically log the user out in this case.
-                }
-                else if (e.error == DropboxServerException._403_FORBIDDEN) {
+                } else if (e.error == DropboxServerException._403_FORBIDDEN) {
                     // Not allowed to access this
-                }
-                else if (e.error == DropboxServerException._404_NOT_FOUND) {
+                } else if (e.error == DropboxServerException._404_NOT_FOUND) {
                     // path not found (or if it was the thumbnail, can't be
                     // thumbnailed)
-                }
-                else if (e.error == DropboxServerException._507_INSUFFICIENT_STORAGE) {
+                } else if (e.error == DropboxServerException._507_INSUFFICIENT_STORAGE) {
                     // user is over quota
-                }
-                else {
+                } else {
                     // Something else
                 }
                 // This gets the Dropbox error, translated into the user's language
@@ -944,8 +1173,7 @@ public class Log_in extends ActionBarActivity {
             if (result) {
                 showToast("تم ارسال الطلب , الرجاء الانتظار حتى يتم القبول");
                 supl.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            }
-            else {
+            } else {
                 // Log.e("DropBox",mErrorMsg);
                 _signupButton.setEnabled(true);
                 showToast(mErrorMsg);
@@ -1003,24 +1231,21 @@ public class Log_in extends ActionBarActivity {
         if (name.isEmpty() || name.length() < 3) {
             _nameText.setError("ادخل على الأقل 3 محارف");
             valid = false;
-        }
-        else {
+        } else {
             _nameText.setError(null);
         }
 
         if (password1.isEmpty() || password1.length() < 3) {
             _passwordText1.setError("ادخل على الاقل 3 محارف");
             valid = false;
-        }
-        else {
+        } else {
             _passwordText1.setError(null);
         }
 
         if (password2.isEmpty() || !password1.equals(password2)) {
             _passwordText2.setError("تأكيد كلمه المرور غير متطابقة مع كلمه المرور");
             valid = false;
-        }
-        else {
+        } else {
             _passwordText2.setError(null);
         }
 
@@ -1035,8 +1260,7 @@ public class Log_in extends ActionBarActivity {
         if (loggedIn) {
             link.setTitle("اقطع الربط");
             //mDisplay.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             link.setTitle("أربط البرنامج");
             //mDisplay.setVisibility(View.GONE);
             //mImage.setImageDrawable(null);
